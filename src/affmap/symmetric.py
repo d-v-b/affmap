@@ -7,39 +7,32 @@ from pydantic import BaseModel, model_validator
 T = TypeVar('T', bound=Hashable)
 V = TypeVar('V', bound=Hashable)
 
-T_AxesIn = TypeVar("T_AxesIn", bound=Hashable)
-T_AxesOut = TypeVar("T_AxesOut", bound=Hashable)
+T_Axes = TypeVar("T_Axes", bound=Hashable)
 
 VectorMap: TypeAlias = Mapping[T, float]
 MatrixMap: TypeAlias = Mapping[T, VectorMap[V]]
 
-class AffMapSym(BaseModel, Generic[T_AxesIn]):
+class AffMapSym(BaseModel, Generic[T_Axes]):
     """
     Model a homogeneous affine transformation with named axes. The transform is decomposed into
     a translation transform and an affine transform.
     """
 
-    translation: VectorMap[T_AxesIn]
-    affine: MatrixMap[T_AxesIn, T_AxesIn]
+    translation: VectorMap[T_Axes]
+    affine: MatrixMap[T_Axes, T_Axes]
 
     _ensure_same_output_axes = model_validator(mode='after')(ensure_same_output_axes)
     _ensure_same_input_axes = model_validator(mode='after')(ensure_same_input_axes)
 
     @property
-    def axes_in(self):
+    def axes(self):
         return tuple(self.translation.keys())
     
-        @property
-    @property
-    def axes_out(self):
-        return tuple(self.translation.keys())
 
-
-
-    def flatten(self, axes_out: Iterable[T_AxesOut], axes_in: Iterable[T_AxesIn]) -> tuple[float, ...]:
+    def flatten(self, axes: Iterable[T_Axes]) -> tuple[float, ...]:
         out: tuple[float, ...] = ()
-        for ax_o in axes_out:
-            for ax_i in axes_in:
+        for ax_o in axes:
+            for ax_i in axes:
                 out += (self.affine[ax_o][ax_i],)
             out += (self.translation[ax_o],)
         return out
