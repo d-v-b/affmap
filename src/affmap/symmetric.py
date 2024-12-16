@@ -15,7 +15,6 @@ VectorMap: TypeAlias = Mapping[T, float]
 MatrixMap: TypeAlias = Mapping[T, VectorMap[V]]
 
 def _ensure_same_output_axes(data: AffMapSym) -> AffMapSym:
-    breakpoint()
     trans_key_set = set(data.translation.keys())
     aff_key_set = set(data.affine.keys())
     if trans_key_set != aff_key_set:
@@ -57,7 +56,6 @@ class AffMapSym(BaseModel, Generic[T_Axes]):
 
     @model_validator(mode='after')
     def _ensure_same_output_axes(data: Any) -> Any:
-        return data
         return _ensure_same_output_axes(data)
     
     @model_validator(mode='after')
